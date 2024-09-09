@@ -1,8 +1,8 @@
-import { ethers } from './ethers.js'; // Make sure to include ethers.js
+// Import ethers from CDN (Assuming ethers.js is included via CDN)
+const { ethers } = window;
 
-// Replace with your actual staking contract address
-const contractAddress = '0xcE3E021038C4f62209EFf23f1d2D3B3EbE83b600';
-const abi = [
+// Contract ABI (Your ABI from abi.js file)
+const stakingABI =  [
 	{
 		"inputs": [
 			{
@@ -238,89 +238,100 @@ const abi = [
 		"stateMutability": "nonpayable",
 		"type": "function"
 	}
-]
+];
+const stakingContractAddress = '0xcE3E021038C4f62209EFf23f1d2D3B3EbE83b600'; // Replace with your contract address
 
-
+// Global variables for wallet connection
 let provider;
 let signer;
-let stakingContract;
+let contract;
+let walletAddress;
 
-const connectWalletButton = document.getElementById("connectWallet");
-const walletAddressDisplay = document.getElementById("walletAddress");
-const totalStakedDisplay = document.getElementById("total-staked");
+// Minato Network Parameters
+const minatoNetwork = {
+  chainId: '0x79a', // 1946 in hexadecimal
+  chainName: 'Minato',
+  nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
+  rpcUrls: ['https://rpc.minato.soneium.org'],
+  blockExplorerUrls: ['https://explorer-testnet.soneium.org']
+};
 
-async function loadWeb3() {
+// MetaMask Connection
+async function connectWallet() {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
-    signer = provider.getSigner();
-    stakingContract = new ethers.Contract(contractAddress, abi, signer);
-
-    // Connect Wallet Button
-    connectWalletButton.addEventListener("click", connectWallet);
-
-    // Load the Total Staked
-    loadTotalStaked();
-  } else {
-    alert("Please install MetaMask or any Ethereum wallet browser extension.");
-  }
-}
-
-async function connectWallet() {
-  try {
     await provider.send("eth_requestAccounts", []);
-    const address = await signer.getAddress();
-
-    // Display shortened address (0x0***00)
-    const shortenedAddress = `${address.substring(0, 4)}***${address.substring(address.length - 3)}`;
-    walletAddressDisplay.textContent = `Connected: ${shortenedAddress}`;
-
-    // Change the Connect button to the shortened address
-    connectWalletButton.textContent = shortenedAddress;
-    connectWalletButton.disabled = true; // Disable after connecting
-  } catch (error) {
-    console.error("Error connecting wallet:", error);
+    signer = provider.getSigner();
+    walletAddress = await signer.getAddress();
+    
+    // Display the shortened wallet address
+    document.getElementById("connectButton").innerText = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
+    
+    // Initialize contract
+    contract = new ethers.Contract(stakingContractAddress, stakingABI, signer);
+    
+    // Fetch initial data
+    updateTotalStaked();
+    updateWalletBalance();
+    updateRewards();
+  } else {
+    alert("MetaMask is not installed. Please install MetaMask to use this feature.");
   }
 }
 
-async function loadTotalStaked() {
-  try {
-    const totalStaked = await stakingContract.getTotalStaked();
-    const formattedStaked = ethers.utils.formatEther(totalStaked);
-    totalStakedDisplay.textContent = formattedStaked;
-  } catch (error) {
-    console.error("Error loading total staked:", error);
-  }
+// Fetch and Display Total Staked and ETH Price from CoinGecko
+async function updateTotalStaked() {
+  const totalStaked = await contract.getTotalStaked();
+  const ethPrice = await axios.get('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
+
+  const totalStakedETH = ethers.utils.formatEther(totalStaked);
+  document.getElementById("totalStaked").innerText = `${totalStakedETH} ETH`;
+  document.getElementById("ethInUSD").innerText = `${(totalStakedETH * ethPrice.data.ethereum.usd).toFixed(2)} USD`;
 }
 
-// Stake, Unstake, Withdraw functionality
-async function stake() {
-  const amount = prompt("Enter amount to stake (in ETH):");
-  if (!amount) return;
-
-  const tx = await stakingContract.stake({ value: ethers.utils.parseEther(amount) });
-  await tx.wait();
-  alert("Staked successfully!");
+// Fetch Wallet Balance
+async function updateWalletBalance() {
+  const balance = await provider.getBalance(walletAddress);
+  document.getElementById("walletBalance").innerText = ethers.utils.formatEther(balance);
 }
 
-async function unstake() {
-  const amount = prompt("Enter amount to unstake (in ETH):");
-  if (!amount) return;
-
-  const tx = await stakingContract.unstake(ethers.utils.parseEther(amount));
-  await tx.wait();
-  alert("Unstaked successfully!");
+// Fetch Rewards for Withdrawal
+async function updateRewards() {
+  const [_, reward] = await contract.getReward(walletAddress);
+  document.getElementById("rewardAvailable").innerText = ethers.utils.formatUnits(reward, 18); // Assuming the reward token has 18 decimals
 }
 
-async function withdraw() {
-  const tx = await stakingContract.withdrawReward();
-  await tx.wait();
-  alert("Withdrawn rewards successfully!");
-}
+// Stake Function
+document.getElementById("stakeButton").onclick = async function () {
+  const stakeAmount = document.getElementById("stakeAmount").value;
+  const stakeAmountWei = ethers.utils.parseEther(stakeAmount);
+  
+  await contract.stake({ value: stakeAmountWei });
+  updateTotalStaked();
+  updateWalletBalance();
+};
 
-// Attach functions to buttons
-document.getElementById("stakeBtn").addEventListener("click", stake);
-document.getElementById("unstakeBtn").addEventListener("click", unstake);
-document.getElementById("withdrawBtn").addEventListener("click", withdraw);
+// Unstake Function
+document.getElementById("unstakeButton").onclick = async function () {
+  const stakerData = await contract.stakers(walletAddress);
+  const stakedAmount = stakerData.amountStaked;
 
-// Initialize web3
-window.addEventListener("load", loadWeb3);
+  await contract.unstake(stakedAmount);
+  updateTotalStaked();
+  updateWalletBalance();
+};
+
+// Withdraw Reward Function
+document.getElementById("withdrawButton").onclick = async function () {
+  await contract.withdrawReward();
+  updateRewards();
+};
+
+// Max Button for Staking
+document.getElementById("maxStake").onclick = async function () {
+  const balance = await provider.getBalance(walletAddress);
+  document.getElementById("stakeAmount").value = ethers.utils.formatEther(balance);
+};
+
+// Connect Wallet on Button Click
+document.getElementById("connectButton").onclick = connectWallet;
