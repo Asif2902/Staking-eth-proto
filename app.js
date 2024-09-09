@@ -1,12 +1,13 @@
+import abi from './abi.js';
+
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 
-// Replace with your contract address and ABI
 const contractAddress = 'YOUR_CONTRACT_ADDRESS';
-const contractABI = YOUR_CONTRACT_ABI;
+const stakingContract = new ethers.Contract(contractAddress, abi, signer);
 
-// Connect to the contract
-const stakingContract = new ethers.Contract(contractAddress, contractABI, signer);
+
+
 
 // Elements
 const totalStakedElement = document.getElementById('totalStaked');
