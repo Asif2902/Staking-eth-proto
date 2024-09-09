@@ -1,44 +1,33 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BNB Staking</title>
-    <link rel="stylesheet" href="styles.css">
-    <script src="ethers.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>BNB Liquid Staking</title>
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="app.js"></script>
 </head>
 <body>
-    <div class="container">
-        <h1>BNB Liquid Staking</h1>
-        <div class="staking-info">
-            <p>Total BNB Staked: <span id="totalStaked">0</span> BNB</p>
-            <p>Comprehensive APY: 33.33%</p>
-        </div>
+  <div class="container">
+    <h2>BNB Liquid Staking</h2>
 
-        <div class="actions">
-            <button id="stake-tab" class="active-tab">Stake</button>
-            <button id="unstake-tab">Unstake</button>
-            <button id="withdraw-tab">Withdraw</button>
-        </div>
-
-        <div class="stake-section">
-            <p>Available Amount: <span id="availableAmount">0 BNB</span></p>
-            <input type="number" id="stakeAmount" placeholder="0" min="0.01">
-            <button id="stakeBtn">Stake</button>
-        </div>
-
-        <div class="unstake-section hidden">
-            <input type="number" id="unstakeAmount" placeholder="0" min="0.01">
-            <button id="unstakeBtn">Unstake</button>
-        </div>
-
-        <div class="withdraw-section hidden">
-            <button id="withdrawBtn">Withdraw Reward</button>
-        </div>
-
-        <div id="notification"></div>
+    <div class="staking-info">
+      <p>Total BNB Staked: <span id="total-staked">0</span> BNB</p>
+      <p>Comprehensive APY: 33.40%</p>
     </div>
 
-    <script src="app.js"></script>
+    <!-- Connect Wallet Button -->
+    <button id="connectWallet">Connect Wallet</button>
+
+    <!-- Display Connected Wallet Address -->
+    <p id="walletAddress"></p>
+
+    <!-- Staking Actions -->
+    <div class="stake-actions">
+      <button id="stakeBtn">Stake</button>
+      <button id="unstakeBtn">Unstake</button>
+      <button id="withdrawBtn">Withdraw</button>
+    </div>
+  </div>
 </body>
 </html>
