@@ -256,13 +256,34 @@ const minatoNetwork = {
   blockExplorerUrls: ['https://explorer-testnet.soneium.org']
 };
 
-// MetaMask Connection
+// Check and Switch to Minato Network
+async function switchToMinatoNetwork() {
+  try {
+    await provider.send("wallet_switchEthereumChain", [{ chainId: minatoNetwork.chainId }]);
+  } catch (error) {
+    // If the network has not been added, add it
+    if (error.code === 4902) {
+      try {
+        await provider.send("wallet_addEthereumChain", [minatoNetwork]);
+      } catch (addError) {
+        alert("Failed to switch to the Minato network. Please try again.");
+      }
+    } else {
+      alert("Error switching network: " + error.message);
+    }
+  }
+}
+
+// MetaMask Connection and Switching Network
 async function connectWallet() {
   if (window.ethereum) {
     provider = new ethers.providers.Web3Provider(window.ethereum);
     await provider.send("eth_requestAccounts", []);
     signer = provider.getSigner();
     walletAddress = await signer.getAddress();
+    
+    // Switch to Minato Network
+    await switchToMinatoNetwork();
     
     // Display the shortened wallet address
     document.getElementById("connectButton").innerText = `${walletAddress.slice(0, 6)}...${walletAddress.slice(-4)}`;
