@@ -1,90 +1,89 @@
 import abi from './abi.js';
+import { ethers } from './ethers.js'; // Make sure to include ethers.js
 
-const provider = new ethers.providers.Web3Provider(window.ethereum);
-const signer = provider.getSigner();
-
+// Replace with your actual staking contract address
 const contractAddress = '0xcE3E021038C4f62209EFf23f1d2D3B3EbE83b600';
-const stakingContract = new ethers.Contract(contractAddress, abi, signer);
 
+let provider;
+let signer;
+let stakingContract;
 
+const connectWalletButton = document.getElementById("connectWallet");
+const walletAddressDisplay = document.getElementById("walletAddress");
+const totalStakedDisplay = document.getElementById("total-staked");
 
+async function loadWeb3() {
+  if (window.ethereum) {
+    provider = new ethers.providers.Web3Provider(window.ethereum);
+    signer = provider.getSigner();
+    stakingContract = new ethers.Contract(contractAddress, abi, signer);
 
-// Elements
-const totalStakedElement = document.getElementById('totalStaked');
-const availableAmountElement = document.getElementById('availableAmount');
-const stakeAmountElement = document.getElementById('stakeAmount');
-const unstakeAmountElement = document.getElementById('unstakeAmount');
-const notificationElement = document.getElementById('notification');
+    // Connect Wallet Button
+    connectWalletButton.addEventListener("click", connectWallet);
 
-// Tab switching
-document.getElementById('stake-tab').addEventListener('click', () => {
-    document.querySelector('.stake-section').classList.remove('hidden');
-    document.querySelector('.unstake-section').classList.add('hidden');
-    document.querySelector('.withdraw-section').classList.add('hidden');
-});
-
-document.getElementById('unstake-tab').addEventListener('click', () => {
-    document.querySelector('.stake-section').classList.add('hidden');
-    document.querySelector('.unstake-section').classList.remove('hidden');
-    document.querySelector('.withdraw-section').classList.add('hidden');
-});
-
-document.getElementById('withdraw-tab').addEventListener('click', () => {
-    document.querySelector('.stake-section').classList.add('hidden');
-    document.querySelector('.unstake-section').classList.add('hidden');
-    document.querySelector('.withdraw-section').classList.remove('hidden');
-});
-
-// Fetch total BNB staked
-async function fetchTotalStaked() {
-    const totalStaked = await stakingContract.getTotalStaked();
-    totalStakedElement.textContent = ethers.utils.formatEther(totalStaked);
+    // Load the Total Staked
+    loadTotalStaked();
+  } else {
+    alert("Please install MetaMask or any Ethereum wallet browser extension.");
+  }
 }
 
-// Stake function
-document.getElementById('stakeBtn').addEventListener('click', async () => {
-    const stakeAmount = stakeAmountElement.value;
-    if (stakeAmount > 0) {
-        try {
-            const tx = await stakingContract.stake({ value: ethers.utils.parseEther(stakeAmount) });
-            await tx.wait();
-            notificationElement.textContent = 'Stake successful!';
-            fetchTotalStaked();
-        } catch (error) {
-            notificationElement.textContent = 'Error during staking: ' + error.message;
-        }
-    } else {
-        notificationElement.textContent = 'Enter a valid amount to stake.';
-    }
-});
+async function connectWallet() {
+  try {
+    await provider.send("eth_requestAccounts", []);
+    const address = await signer.getAddress();
 
-// Unstake function
-document.getElementById('unstakeBtn').addEventListener('click', async () => {
-    const unstakeAmount = unstakeAmountElement.value;
-    if (unstakeAmount > 0) {
-        try {
-            const tx = await stakingContract.unstake(ethers.utils.parseEther(unstakeAmount));
-            await tx.wait();
-            notificationElement.textContent = 'Unstake successful!';
-            fetchTotalStaked();
-        } catch (error) {
-            notificationElement.textContent = 'Error during unstaking: ' + error.message;
-        }
-    } else {
-        notificationElement.textContent = 'Enter a valid amount to unstake.';
-    }
-});
+    // Display shortened address (0x0***00)
+    const shortenedAddress = `${address.substring(0, 4)}***${address.substring(address.length - 3)}`;
+    walletAddressDisplay.textContent = `Connected: ${shortenedAddress}`;
 
-// Withdraw reward function
-document.getElementById('withdrawBtn').addEventListener('click', async () => {
-    try {
-        const tx = await stakingContract.withdrawReward();
-        await tx.wait();
-        notificationElement.textContent = 'Reward withdrawn successfully!';
-    } catch (error) {
-        notificationElement.textContent = 'Error during reward withdrawal: ' + error.message;
-    }
-});
+    // Change the Connect button to the shortened address
+    connectWalletButton.textContent = shortenedAddress;
+    connectWalletButton.disabled = true; // Disable after connecting
+  } catch (error) {
+    console.error("Error connecting wallet:", error);
+  }
+}
 
-// Initialize the UI
-fetchTotalStaked();
+async function loadTotalStaked() {
+  try {
+    const totalStaked = await stakingContract.getTotalStaked();
+    const formattedStaked = ethers.utils.formatEther(totalStaked);
+    totalStakedDisplay.textContent = formattedStaked;
+  } catch (error) {
+    console.error("Error loading total staked:", error);
+  }
+}
+
+// Stake, Unstake, Withdraw functionality
+async function stake() {
+  const amount = prompt("Enter amount to stake (in ETH):");
+  if (!amount) return;
+
+  const tx = await stakingContract.stake({ value: ethers.utils.parseEther(amount) });
+  await tx.wait();
+  alert("Staked successfully!");
+}
+
+async function unstake() {
+  const amount = prompt("Enter amount to unstake (in ETH):");
+  if (!amount) return;
+
+  const tx = await stakingContract.unstake(ethers.utils.parseEther(amount));
+  await tx.wait();
+  alert("Unstaked successfully!");
+}
+
+async function withdraw() {
+  const tx = await stakingContract.withdrawReward();
+  await tx.wait();
+  alert("Withdrawn rewards successfully!");
+}
+
+// Attach functions to buttons
+document.getElementById("stakeBtn").addEventListener("click", stake);
+document.getElementById("unstakeBtn").addEventListener("click", unstake);
+document.getElementById("withdrawBtn").addEventListener("click", withdraw);
+
+// Initialize web3
+window.addEventListener("load", loadWeb3);
