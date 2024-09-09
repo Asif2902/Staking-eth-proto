@@ -3,32 +3,44 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>BNB Liquid Staking</title>
+  <title>Staking Platform</title>
   <link rel="stylesheet" href="styles.css">
-  <script defer src="app.js"></script>
+  <!-- Axios CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+   <script src="ethers.js"></script>
 </head>
 <body>
-  <div class="container">
-    <h2>BNB Liquid Staking</h2>
+  <div id="wallet-section">
+    <button id="connectButton">Connect Wallet</button>
+  </div>
+  
+  <div id="staking-section" class="container">
+    <h2>Total ETH Staked: <span id="totalStaked">0 ETH</span></h2>
+    <h2>Total Value: <span id="ethInUSD">0 USD</span></h2>
 
-    <div class="staking-info">
-      <p>Total BNB Staked: <span id="total-staked">0</span> BNB</p>
-      <p>Comprehensive APY: 33.40%</p>
+    <!-- Staking Section -->
+    <div class="stake-section">
+      <h3>Stake ETH</h3>
+      <p>Your Balance: <span id="walletBalance">0</span> ETH</p>
+      <input type="number" id="stakeAmount" placeholder="Enter amount">
+      <button id="maxStake">Max</button>
+      <button id="stakeButton">Stake</button>
     </div>
 
-    <!-- Connect Wallet Button -->
-    <button id="connectWallet">Connect Wallet</button>
+    <!-- Unstake Section -->
+    <div class="unstake-section">
+      <h3>Unstake ETH</h3>
+      <button id="unstakeButton">Unstake All</button>
+    </div>
 
-    <!-- Display Connected Wallet Address -->
-    <p id="walletAddress"></p>
-
-    <!-- Staking Actions -->
-    <div class="stake-actions">
-      <input type="text" id="stakeAmount" placeholder="Enter amount to stake">
-      <button id="stakeBtn">Stake</button>
-      <button id="unstakeBtn">Unstake</button>
-      <button id="withdrawBtn">Withdraw</button>
+    <!-- Withdraw Section -->
+    <div class="withdraw-section">
+      <h3>Withdraw Rewards</h3>
+      <p>Reward Available: <span id="rewardAvailable">0</span> Tokens</p>
+      <button id="withdrawButton">Withdraw</button>
     </div>
   </div>
+
+  <script src="app.js"></script>
 </body>
 </html>
