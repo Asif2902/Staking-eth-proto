@@ -3,7 +3,7 @@ import abi from './abi.js';
 const provider = new ethers.providers.Web3Provider(window.ethereum);
 const signer = provider.getSigner();
 
-const contractAddress = 'YOUR_CONTRACT_ADDRESS';
+const contractAddress = '0xcE3E021038C4f62209EFf23f1d2D3B3EbE83b600';
 const stakingContract = new ethers.Contract(contractAddress, abi, signer);
 
 
