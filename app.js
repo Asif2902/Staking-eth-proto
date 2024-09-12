@@ -330,7 +330,13 @@ document.getElementById("withdrawButton").onclick = async function () {
 // Max Button for Staking
 document.getElementById("maxStake").onclick = async function () {
   const balance = await provider.getBalance(walletAddress);
-  document.getElementById("stakeAmount").value = ethers.utils.formatEther(balance);
+  const gasReserve = ethers.utils.parseEther("0.001"); // Reserve 0.001 ETH for gas
+  const availableBalance = balance.sub(gasReserve); // Subtract gas reserve from balance
+
+  // Ensure available balance is not negative
+  const stakeAmount = availableBalance.isNegative() ? ethers.BigNumber.from("0") : availableBalance;
+
+  document.getElementById("stakeAmount").value = ethers.utils.formatEther(stakeAmount);
 };
 
 // Connect Wallet on Button Click
