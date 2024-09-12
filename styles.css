@@ -7,6 +7,14 @@ body {
   color: #333;
 }
 
+/* Aligning the header container for wallet button */
+.header {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
 /* Container Styling */
 .container {
   max-width: 800px;
@@ -61,5 +69,19 @@ input[type="text"]:focus, input[type="number"]:focus, select:focus {
 
   button {
     width: 100%;
+  }
+
+  .header {
+    justify-content: center; /* Ensures button stays centered on mobile */
+  }
+}
+
+/* Desktop-specific design */
+@media (min-width: 769px) {
+  .header {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%); /* Centers the button horizontally */
   }
 }
