@@ -1,7 +1,7 @@
-// Import ethers from CDN (Assuming ethers.js is included via CDN)
+
 const { ethers } = window;
 
-// Contract ABI (Your ABI from abi.js file)
+
 const stakingABI = [
     {
         "inputs": [
