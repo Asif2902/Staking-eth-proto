@@ -3,48 +3,61 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="description" content="Stake your ETH and earn rewards with our staking platform. View total ETH staked, rewards available, and stake/unstake your tokens.">
+  <meta name="keywords" content="Ethereum, Staking, Crypto, Rewards, ETH">
+  <meta name="author" content="Asif Iqbal">
+  
   <title>Staking Platform</title>
+
+  <!-- External Stylesheet -->
   <link rel="stylesheet" href="styles.css">
-  <!-- Axios CDN -->
+
+  <!-- Axios and Ethers.js CDN -->
   <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
-   <script src="ethers.js"></script>
-   
+  <script src="https://cdn.jsdelivr.net/npm/ethers/dist/ethers.umd.min.js"></script>
+
+  <!-- Favicon -->
   <link rel="icon" type="image/x-icon" href="favicon.ico">
-
-
 </head>
+
 <body>
+
+  <!-- Wallet Section -->
   <div id="wallet-section">
-    <button id="connectButton">Connect Wallet</button>
+    <button id="connectButton" aria-label="Connect to your wallet">Connect Wallet</button>
   </div>
   
+  <!-- Staking Section -->
   <div id="staking-section" class="container">
     <h2>Total ETH Staked: <span id="totalStaked">0 ETH</span></h2>
     <h2>Total Value: <span id="ethInUSD">0 USD</span></h2>
     <h3>Comprehensive APY: 33.40%</h3>
-    <!-- Staking Section -->
+    
+    <!-- Stake ETH Section -->
     <div class="stake-section">
       <h3>Stake ETH</h3>
       <p>Your Balance: <span id="walletBalance">0</span> ETH</p>
-      <input type="number" id="stakeAmount" placeholder="Enter amount">
-      <button id="maxStake">Max</button>
-      <button id="stakeButton">Stake</button>
+      <input type="number" id="stakeAmount" placeholder="Enter amount" aria-label="Enter ETH amount to stake">
+      <button id="maxStake" aria-label="Set maximum amount of ETH to stake">Max</button>
+      <button id="stakeButton" aria-label="Stake ETH">Stake</button>
     </div>
 
     <!-- Unstake Section -->
     <div class="unstake-section">
       <h3>Unstake ETH</h3>
-      <button id="unstakeButton">Unstake All</button>
+      <button id="unstakeButton" aria-label="Unstake all ETH">Unstake All</button>
     </div>
 
-    <!-- Withdraw Section -->
+    <!-- Withdraw Rewards Section -->
     <div class="withdraw-section">
       <h3>Withdraw Rewards</h3>
       <p>Reward Available: <span id="rewardAvailable">0</span> Tokens</p>
-      <button id="withdrawButton">Withdraw</button>
+      <button id="withdrawButton" aria-label="Withdraw rewards">Withdraw</button>
     </div>
   </div>
 
+  <!-- JavaScript Files -->
   <script src="app.js"></script>
 </body>
 </html>
