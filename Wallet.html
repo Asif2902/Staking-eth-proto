@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Wallet Connect</title>
+  
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 50px;
+    }
+
+    .header button {
+      padding: 10px 20px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <button id="connect-wallet-btn">Connect Wallet</button>
+  </div>
+
+  <script type="module">
+    import Onboard from '@web3-onboard/core';
+    import injectedModule from '@web3-onboard/injected-wallets';
+    import bitgetWalletModule from '@web3-onboard/bitget';
+    import metamaskSDK from '@web3-onboard/metamask';
+    import walletConnectModule from '@web3-onboard/walletconnect';
+    import okxWallet from '@web3-onboard/okx';
+    import coinbaseWalletModule from '@web3-onboard/coinbase';
+    import { ethers } from 'ethers';
+
+    const minatoChainId = '0x79a'; // Minato network chain ID
+    let onboard = null;
+    let ethersProvider = null;
+    let signer = null;
+
+    // Wait for DOM content to be loaded
+    document.addEventListener('DOMContentLoaded', async () => {
+      const injected = injectedModule();
+      const bitgetWallet = bitgetWalletModule();
+      const metamaskSDKWallet = metamaskSDK({
+        options: {
+          extensionOnly: false,
+          dappMetadata: {
+            name: 'Eth staking'
+          }
+        }
+      });
+
+      const okx = okxWallet();
+      const coinbaseWalletSdk = coinbaseWalletModule();
+      const walletConnect = walletConnectModule({
+        projectId: '80860302c6914b5931906382db7c216e',
+        requiredChains: [1946],
+        dappUrl: 'https://stake-meth.vercel.app'
+      });
+
+      // Initialize Web3-Onboard with different wallet options
+      onboard = Onboard({
+        wallets: [injected, metamaskSDKWallet, coinbaseWalletSdk, bitgetWallet, walletConnect, okx],
+        chains: [
+          {
+            id: minatoChainId,
+            token: 'ETH',
+            label: 'Minato',
+            rpcUrl: 'https://rpc.minato.soneium.org'
+          }
+        ],
+        appMetadata: {
+          name: 'Staking App',
+          icon: 'https://i.ibb.co.com/VJH23rF/logo-2.png',
+          logo: 'https://i.ibb.co.com/VJH23rF/logo-2.png',
+          description: 'An ETH staking platform on the Minato chain',
+          recommendedInjectedWallets: [
+            { name: 'MetaMask', url: 'https://metamask.io' }
+          ]
+        }
+      });
+    });
+
+    // Function to switch to the Minato chain
+    async function switchChain(provider) {
+      try {
+        await provider.request({
+          method: 'wallet_switchEthereumChain',
+          params: [{ chainId: minatoChainId }]
+        });
+      } catch (error) {
+        if (error.code === 4902) {
+          try {
+            await provider.request({
+              method: 'wallet_addEthereumChain',
+              params: [
+                {
+                  chainId: minatoChainId,
+                  chainName: 'Minato',
+                  rpcUrls: ['https://rpc.minato.soneium.org'],
+                  nativeCurrency: {
+                    name: 'Ethereum',
+                    symbol: 'ETH',
+                    decimals: 18
+                  },
+                  blockExplorerUrls: ['https://explorer-testnet.soneium.org']
+                }
+              ]
+            });
+          } catch (addError) {
+            console.error('Error adding Minato chain', addError);
+          }
+        } else {
+          console.error('Error switching chain', error);
+        }
+      }
+    }
+
+    // Function to connect the wallet
+    async function connectWallet() {
+      if (onboard) {
+        const wallets = await onboard.connectWallet();
+        if (wallets.length > 0) {
+          const wallet = wallets[0];
+          ethersProvider = new ethers.providers.Web3Provider(wallet.provider, 'any');
+          signer = ethersProvider.getSigner();
+          const address = await signer.getAddress();
+
+          // Display the connected wallet address
+          document.getElementById('connect-wallet-btn').textContent = `Connected: ${address.slice(0, 6)}...${address.slice(-4)}`;
+
+          const { chainId } = await ethersProvider.getNetwork();
+          if (chainId !== parseInt(minatoChainId, 16)) {
+            await switchChain(ethersProvider.provider);
+          }
+        }
+      }
+    }
+
+    // Attach click event listener to the Connect Wallet button
+    document.getElementById('connect-wallet-btn').addEventListener('click', connectWallet);
+  </script>
+</body>
+</html>
