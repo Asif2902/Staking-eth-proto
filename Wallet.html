@@ -5,6 +5,18 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Wallet Connect</title>
   
+  <!-- Web3-Onboard libraries -->
+  <script src="https://unpkg.com/@web3-onboard/core/dist/esm/index.js"></script>
+  <script src="https://unpkg.com/@web3-onboard/injected-wallets/dist/esm/index.js"></script>
+  <script src="https://unpkg.com/@web3-onboard/bitget/dist/esm/index.js"></script>
+  <script src="https://unpkg.com/@web3-onboard/metamask/dist/esm/index.js"></script>
+  <script src="https://unpkg.com/@web3-onboard/walletconnect/dist/esm/index.js"></script>
+  <script src="https://unpkg.com/@web3-onboard/okx/dist/esm/index.js"></script>
+  <script src="https://unpkg.com/@web3-onboard/coinbase/dist/esm/index.js"></script>
+  
+  <!-- Ethers.js for interacting with Ethereum blockchain -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -24,16 +36,7 @@
     <button id="connect-wallet-btn">Connect Wallet</button>
   </div>
 
-  <script type="module">
-    import Onboard from '@web3-onboard/core';
-    import injectedModule from '@web3-onboard/injected-wallets';
-    import bitgetWalletModule from '@web3-onboard/bitget';
-    import metamaskSDK from '@web3-onboard/metamask';
-    import walletConnectModule from '@web3-onboard/walletconnect';
-    import okxWallet from '@web3-onboard/okx';
-    import coinbaseWalletModule from '@web3-onboard/coinbase';
-    import { ethers } from 'ethers';
-
+  <script>
     const minatoChainId = '0x79a'; // Minato network chain ID
     let onboard = null;
     let ethersProvider = null;
