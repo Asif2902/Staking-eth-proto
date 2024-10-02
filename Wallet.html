@@ -24,15 +24,16 @@
     <button id="connect-wallet-btn">Connect Wallet</button>
   </div>
 
+  <!-- Import the necessary libraries using CDN -->
+  <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   <script type="module">
-    import Onboard from '@web3-onboard/core';
-    import injectedModule from '@web3-onboard/injected-wallets';
-    import bitgetWalletModule from '@web3-onboard/bitget';
-    import metamaskSDK from '@web3-onboard/metamask';
-    import walletConnectModule from '@web3-onboard/walletconnect';
-    import okxWallet from '@web3-onboard/okx';
-    import coinbaseWalletModule from '@web3-onboard/coinbase';
-    import { ethers } from 'ethers';
+    import Onboard from 'https://unpkg.com/@web3-onboard/core@2.6.2/dist/esm/index.js';
+    import injectedModule from 'https://unpkg.com/@web3-onboard/injected-wallets@2.0.2/dist/esm/index.js';
+    import bitgetWalletModule from 'https://unpkg.com/@web3-onboard/bitget@1.3.2/dist/esm/index.js';
+    import metamaskSDK from 'https://unpkg.com/@web3-onboard/metamask@2.1.3/dist/esm/index.js';
+    import walletConnectModule from 'https://unpkg.com/@web3-onboard/walletconnect@2.4.4/dist/esm/index.js';
+    import okxWallet from 'https://unpkg.com/@web3-onboard/okx@1.2.1/dist/esm/index.js';
+    import coinbaseWalletModule from 'https://unpkg.com/@web3-onboard/coinbase@2.2.2/dist/esm/index.js';
 
     const minatoChainId = '0x79a'; // Minato network chain ID
     let onboard = null;
